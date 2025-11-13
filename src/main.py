@@ -1,18 +1,25 @@
 from textnode import *
 from filenode import *
 import shutil, os, subprocess, sys
+
+dir_path_static = "./static"
+dir_path_public = "./docs"
+dir_path_content = "./content"
+template_path = "./template.html"
+default_basepath = "/"
 def main():
-    basepath = sys.argv[1]
-    if os.path.exists("/root/repo/Html_Site/docs"):
-        shutil.rmtree("/root/repo/Html_Site/docs")
-    os.mkdir("/root/repo/Html_Site/docs" ,mode=0o777)
-    for items in os.listdir("/root/repo/Html_Site/static"):
-        paths = f"/root/repo/Html_Site/static/{items}"
-        if os.path.isdir(paths):
-            search_dir(paths, 6)
-        elif os.path.isfile(paths):
-            shutil.copy(f"/root/repo/Html_Site/static/{items}", "/root/repo/Html_Site/docs")
-    generate_pages_recursive("content", "template.html", "docs", basepath,"/root/repo/Html_Site")
-    subprocess.run(["python3", "-m", "http.server", "8888"], cwd="public", check=True)
+    basepath = default_basepath
+    if len(sys.argv) > 1:
+        basepath = sys.argv[1]
+
+    print("Deleting public directory...")
+    if os.path.exists(dir_path_public):
+        shutil.rmtree(dir_path_public)
+
+    print("Copying static files to public directory...")
+    copy_files_recursive(dir_path_static, dir_path_public)
+
+    print("Generating content...")
+    generate_pages_recursive(dir_path_content, template_path, dir_path_public)
 main()
 
